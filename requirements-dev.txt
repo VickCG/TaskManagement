@@ -1,0 +1,12 @@
+pytest
+pytest-asyncio
+httpx
+sqlalchemy
+fastapi
+psycopg2-binary
+pydantic
+python-jose
+passlib
+uvicorn
+python-multipart
+python-dotenv
