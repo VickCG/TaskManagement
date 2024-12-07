@@ -62,21 +62,17 @@ This project is a backend API for managing tasks, built with **FastAPI**. It inc
    cd TaskManagement
    ```
 
-2. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
 ### Environment Variables
 
 1. Copy the example environment file:
 
    ```bash
-   cp .env.example .env
+   cd env
+   cp .env.example dev.env
+   cp .env.example test.env
    ```
 
-2. Update the `.env` file with your configurations:
+2. Update the `dev.env` and `test.env` files with your configurations:
 
    ```env
    POSTGRES_USER=
@@ -90,12 +86,12 @@ This project is a backend API for managing tasks, built with **FastAPI**. It inc
 
 ### Running the Application
 
-#### Using Docker
+#### Development
 
 1. Build and run the services:
 
    ```bash
-   docker-compose up --build
+   docker-compose -f docker-compose.dev.yml up --build
    ```
 
 2. The application will be available at:
@@ -112,8 +108,8 @@ This project is a backend API for managing tasks, built with **FastAPI**. It inc
 
 ### Testing
 
-Run the test suite using `pytest`:
+Build and run the testing environment:
 
 ```bash
-pytest
+docker-compose -f docker-compose.test.yml up --build
 ```
