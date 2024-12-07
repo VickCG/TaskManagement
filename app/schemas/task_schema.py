@@ -36,7 +36,7 @@ class TaskResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TaskSummary(BaseModel):
+class TaskSummaryResponse(BaseModel):
     assignee_id: int
     total_tasks: int
     completed_tasks: int

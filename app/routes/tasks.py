@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.database import get_db
-from app.schemas.task_schema import TaskCreate, TaskUpdate, TaskResponse
+from app.schemas.task_schema import TaskCreate, TaskUpdate, TaskResponse, TaskSummaryResponse
 from app.models.user import RoleEnum
 from app.services.task_service import TaskService
 from app.routes.auth import get_current_user
