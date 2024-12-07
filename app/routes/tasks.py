@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from app.config import get_db
+from app.database import get_db
 from app.schemas.task_schema import TaskCreate, TaskUpdate, TaskResponse
 from app.models.user import RoleEnum
-from app.crud.task_crud import TaskCRUD
+from app.services.task_service import TaskService
 from app.routes.auth import get_current_user
 from app.middlewares.permission_middleware import permission_required, owner_or_assignee_required
 
@@ -18,10 +18,11 @@ async def create_task(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    return TaskCRUD.create_task(db, task, current_user.id)
+    return TaskService.create_task(db, task, current_user.id)
 
 
 @router.get("/", response_model=List[TaskResponse])
+@permission_required(RoleEnum.EMPLOYER)
 async def list_tasks(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
@@ -32,7 +33,7 @@ async def list_tasks(
     if current_user.role == RoleEnum.EMPLOYEE:
         assignee_id = current_user.id
 
-    return TaskCRUD.get_tasks(
+    return TaskService.get_tasks(
         db,
         assignee_id=assignee_id,
         status=status,
@@ -50,4 +51,33 @@ async def update_task(
     current_user=Depends(get_current_user),
     task=None
 ):
-    return TaskCRUD.update_task(db, task_id, task_update)
+    return TaskService.update_task(db, task_id, task_update)
+
+
+@router.get("/", response_model=List[TaskResponse])
+@permission_required(RoleEnum.EMPLOYER)
+async def list_tasks(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+    assignee_id: Optional[int] = None,
+    status: Optional[str] = None,
+    sort_by: Optional[str] = None,
+):
+    if current_user.role == RoleEnum.EMPLOYEE:
+        assignee_id = current_user.id
+
+    return TaskService.get_tasks(
+        db,
+        assignee_id=assignee_id,
+        status=status,
+        sort_by=sort_by,
+    )
+
+
+@router.get("/summary", response_model=List[TaskSummaryResponse])
+@permission_required(RoleEnum.EMPLOYER)
+async def task_summary(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    return TaskService.get_employee_task_summary(db)

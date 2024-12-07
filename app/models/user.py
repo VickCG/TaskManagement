@@ -1,7 +1,7 @@
+import enum
 from sqlalchemy import Column, Integer, String, Enum
 from sqlalchemy.orm import relationship
-from app.config import Base
-import enum
+from app.database import Base
 
 class RoleEnum(enum.Enum):
     EMPLOYEE = "employee"

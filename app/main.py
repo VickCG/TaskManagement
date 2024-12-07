@@ -1,6 +1,6 @@
 from fastapi import FastAPI
+from app.database import engine
 from app.routes import tasks, auth, users
-from app.config import engine
 from app.models import user, task
 
 # Create database tables

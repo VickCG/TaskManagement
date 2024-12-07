@@ -5,8 +5,10 @@ sqlalchemy
 fastapi
 psycopg2-binary
 pydantic
+pydantic[email]
 python-jose
 passlib
 uvicorn
+pydantic-settings
 python-multipart
 python-dotenv

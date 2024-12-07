@@ -2,14 +2,13 @@ from fastapi import Request, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Callable
 from functools import wraps
-from app.models import Role
-from app.crud.task_crud import TaskCRUD
+from app.services.task_service import TaskService
 from app.models.user import RoleEnum
 
 
 class PermissionMiddleware:
     @staticmethod
-    def check_role(user, required_role: Role):
+    def check_role(user, required_role: RoleEnum):
         if user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -18,14 +17,14 @@ class PermissionMiddleware:
 
     @staticmethod
     def check_employer_permission(user):
-        PermissionMiddleware.check_role(user, Role.employer)
+        PermissionMiddleware.check_role(user, RoleEnum.employer)
 
     @staticmethod
     def check_employee_permission(user):
-        PermissionMiddleware.check_role(user, Role.employee)
+        PermissionMiddleware.check_role(user, RoleEnum.employee)
 
 
-def permission_required(required_role: Role):
+def permission_required(required_role: RoleEnum):
     def decorator(route_handler: Callable):
         @wraps(route_handler)
         async def wrapper(*args, **kwargs):
@@ -67,7 +66,7 @@ def owner_or_assignee_required():
                     detail="Database session or current user is missing."
                 )
 
-            task = TaskCRUD.get_task_by_id(db, task_id)
+            task = TaskService.get_task_by_id(db, task_id)
 
             if current_user.role == RoleEnum.EMPLOYEE and task.assignee_id != current_user.id:
                 raise HTTPException(

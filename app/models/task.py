@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-from app.config import Base
+from app.database import Base
 from app.enums.task_status import TaskStatusEnum
 from datetime import datetime, timezone
 

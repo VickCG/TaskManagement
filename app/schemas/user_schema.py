@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, ConfigDict
 from typing import Optional
 from app.models.user import RoleEnum
 
@@ -16,8 +16,7 @@ class UserResponse(BaseModel):
     email: str
     role: RoleEnum
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TokenData(BaseModel):
     username: Optional[str] = None

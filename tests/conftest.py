@@ -1,26 +1,36 @@
+import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-
 from app.main import app
-from app.config import Base
+from app.database import Base, get_db
 from app.models.user import User, RoleEnum
-from app.models.task import Task, TaskStatusEnum
 from app.services.auth_service import AuthService
+from dotenv import load_dotenv
 
-TEST_DATABASE_URL = "sqlite:///:memory:"
-engine = create_engine(
-    TEST_DATABASE_URL, 
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+ENV_FILE = os.path.join(ROOT_DIR, "env/test.env")
+load_dotenv(dotenv_path=ENV_FILE)
+
+TEST_DATABASE_URL = os.getenv("DATABASE_URL")
+if not TEST_DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set.")
+
+engine = create_engine(TEST_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture(scope="function")
 def db():
-    # Create all tables
     Base.metadata.create_all(bind=engine)
     
     db = TestingSessionLocal()
@@ -63,18 +73,22 @@ def employee_user(db):
     return employee
 
 @pytest.fixture(scope="function")
-def employer_token(client, employer_user):
+def employer_token(client):
     response = client.post(
-        "/login", 
+        "/auth/login",  # Ensure the correct endpoint path
         json={
-            "username": "employer_test", 
+            "username": "employer_test",
             "password": "employer_password"
         }
     )
+    print("Response JSON:", response.json())  # Debugging: Inspect response content
+    assert response.status_code == 200, f"Login failed: {response.json()}"
+    assert "access_token" in response.json(), f"Missing access_token: {response.json()}"
     return response.json()["access_token"]
 
+
 @pytest.fixture(scope="function")
-def employee_token(client, employee_user):
+def employee_token(client):
     response = client.post(
         "/login", 
         json={

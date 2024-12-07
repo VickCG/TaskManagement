@@ -6,7 +6,7 @@ from app.schemas.task_schema import TaskCreate, TaskUpdate
 from typing import List, Optional
 
 
-class TaskCRUD:
+class TaskService:
     @staticmethod
     def create_task(db: Session, task: TaskCreate):
         db_task = Task(
@@ -51,7 +51,7 @@ class TaskCRUD:
     def get_task_by_id(db: Session, task_id: int) -> Task:
         task = db.query(Task).filter(Task.id == task_id).first()
         if not task:
-            raise HTTPException(status_code=status.HTTP_404_NOTFOUND, detail="Task not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
         return task
 
     @staticmethod
@@ -59,9 +59,8 @@ class TaskCRUD:
         db_task = db.query(Task).filter(Task.id == task_id).first()
         
         if not db_task:
-            raise HTTPException(status_code=status.HTTP_404_NOTFOUND, detail="Task not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
         
-        # Update only provided fields
         update_data = task_update.dict(exclude_unset=True)
         for key, value in update_data.items():
             setattr(db_task, key, value)
