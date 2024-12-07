@@ -6,27 +6,16 @@ services:
     env_file:
       - env/test.env
     depends_on:
-      db:
-        condition: service_healthy
+      - db
 
   db:
     image: postgres:14
     env_file:
       - env/test.env
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-default_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-default_password}
-      POSTGRES_DB: ${POSTGRES_DB:-default_database}
     ports:
       - "5432:5432"
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
-    healthcheck:
-      test:
-        ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} -t 5"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   postgres_test_data:
